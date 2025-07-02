@@ -1,0 +1,74 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}إضافة مستخدم{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>إضافة مستخدم جديد</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <script>
+        function updateRanks() {
+            var type = document.getElementById('rank_type').value;
+            var officerRanks = {{ officer_ranks|tojson }};
+            var enlistedRanks = {{ enlisted_ranks|tojson }};
+            var rankSelect = document.getElementById('rank');
+            rankSelect.innerHTML = '';
+            var ranks = (type === 'officer') ? officerRanks : enlistedRanks;
+            for (var i = 0; i < ranks.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = ranks[i];
+                opt.innerHTML = ranks[i];
+                rankSelect.appendChild(opt);
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="container mt-4">
+    <h3>إضافة مستخدم جديد</h3>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">اسم المستخدم</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">كلمة المرور</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">الاسم الكامل</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">نوع الرتبة</label>
+            <select name="rank_type" id="rank_type" class="form-select" onchange="updateRanks()" required>
+                <option value="officer">ضابط</option>
+                <option value="enlisted">فرد</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">الرتبة</label>
+            <select name="rank" id="rank" class="form-select" required>
+                <!-- سيتم تعبئتها بالجافاسكريبت -->
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">الصلاحية</label>
+            <select name="role" class="form-select" required>
+                <option value="officer">ضابط</option>
+                <option value="user">مستخدم</option>
+                <option value="admin">مدير النظام</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">إضافة</button>
+        <a href="{{ url_for('users') }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+<script>updateRanks();</script>
+</body>
+</html>
+{% endblock %} 

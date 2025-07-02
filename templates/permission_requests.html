@@ -1,0 +1,78 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}طلبات الإذن/الاستئذان{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width: 950px;">
+    <h3 class="mb-4 text-center">سجل طلبات الإذن/الاستئذان</h3>
+    <form method="post" class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">اسم مقدم الطلب <span class="text-danger">*</span></label>
+                <input type="text" name="requester_name" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع الإذن <span class="text-danger">*</span></label>
+                <select name="permission_type" class="form-select" required>
+                    <option value="">اختر</option>
+                    <option value="خروج">خروج</option>
+                    <option value="استئذان">استئذان</option>
+                    <option value="مهمة رسمية">مهمة رسمية</option>
+                    <option value="إجازة اضطرارية">إجازة اضطرارية</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">التاريخ <span class="text-danger">*</span></label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الوقت <span class="text-danger">*</span></label>
+                <input type="time" name="time" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">سبب الطلب</label>
+                <input type="text" name="reason" class="form-control">
+            </div>
+            <div class="col-md-12 mt-2">
+                <label class="form-label">ملاحظات إضافية</label>
+                <input type="text" name="notes" class="form-control">
+            </div>
+            <div class="col-md-12 mt-3 text-center">
+                <button type="submit" class="btn btn-success px-5">إضافة طلب إذن/استئذان</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>اسم مقدم الطلب</th>
+                    <th>نوع الإذن</th>
+                    <th>التاريخ</th>
+                    <th>الوقت</th>
+                    <th>سبب الطلب</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_permission_request', request_id=r[0]) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف الطلب؟');">حذف</a>
+                        <a href="{{ url_for('permission_request_print', request_id=r[0]) }}" class="btn btn-outline-primary btn-sm" target="_blank">طباعة</a>
+                        <a href="{{ url_for('permission_request_view', request_id=r[0]) }}" class="btn btn-info btn-sm" target="_blank">عرض</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

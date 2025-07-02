@@ -1,0 +1,645 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}التقارير اليومية{% endblock %}
+{% block content %}
+<div style="color:blue;direction:ltr;font-size:0.9rem;word-break:break-all">{{ vars()|safe }}</div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>قائمة التقارير اليومية</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .report-img { 
+            max-height: 80px; 
+            max-width: 120px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .report-img:hover {
+            transform: scale(1.1);
+        }
+        .table thead th { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+            color: #374151;
+            padding: 12px 8px;
+        }
+        .table td {
+            padding: 10px 8px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        .badge {
+            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 15px;
+            font-weight: 500;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+        }
+        .page-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        .table-responsive {
+            border-radius: 15px;
+            overflow-x: auto !important;
+            overflow-y: visible;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: white;
+            min-height: 1px;
+            scrollbar-color: #218838 #e9ecef;
+            scrollbar-width: thin;
+        }
+        .table-responsive::-webkit-scrollbar {
+            height: 10px;
+            background: #e9ecef;
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #218838;
+            border-radius: 8px;
+        }
+        .table {
+            margin-bottom: 0;
+            min-width: 1200px;
+        }
+        .user-info {
+            min-width: 120px;
+        }
+        .user-info strong {
+            color: #1e3a8a;
+            font-size: 0.9rem;
+        }
+        .user-info small {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        @media (max-width: 991px) {
+            .table-responsive { font-size: 0.9rem; }
+            .table th, .table td { padding: 8px 4px; font-size: 0.85rem; }
+            .table { min-width: 900px; }
+        }
+        @media (max-width: 600px) {
+            .table { min-width: 700px; }
+        }
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.8rem;
+            }
+            .table th, .table td {
+                padding: 6px 4px;
+                font-size: 0.75rem;
+            }
+            .user-info {
+                min-width: 80px;
+            }
+            .user-info strong {
+                font-size: 0.8rem;
+            }
+            .user-info small {
+                font-size: 0.7rem;
+            }
+            .badge {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+            }
+            .report-img {
+                max-height: 60px;
+                max-width: 80px;
+            }
+        }
+        @media print {
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100vw; background: #fff; z-index: 9999; }
+            .no-print { display: none !important; }
+        }
+        .print-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .print-header .ksa {
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .print-header .logo {
+            text-align: center;
+        }
+        .print-header .logo img {
+            height: 70px;
+        }
+        .print-footer {
+            margin-top: 40px;
+            text-align: left;
+            font-size: 1rem;
+        }
+        .print-footer img {
+            height: 50px;
+            margin-right: 10px;
+        }
+        
+        /* أنماط للاختيار الجماعي */
+        .bulk-actions {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            display: none;
+        }
+        
+        .bulk-actions.show {
+            display: block;
+        }
+        
+        .bulk-actions .btn {
+            margin: 0 5px;
+        }
+        
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .select-all-container input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        
+        .select-all-container label {
+            margin: 0;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .report-checkbox {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        
+        .selected-count {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3 class="mb-0"><i class="fas fa-list me-2"></i>قائمة التقارير اليومية</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <form method="get" class="d-inline-block" id="filterForm">
+                <label for="statusFilter" class="me-2">فلترة حسب الحالة:</label>
+                <select name="status" id="statusFilter" class="form-select d-inline-block w-auto" onchange="document.getElementById('filterForm').submit();">
+                    <option value="all" {% if request.args.get('status', 'all') == 'all' %}selected{% endif %}>الكل</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>بانتظار القائد</option>
+                    <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>مقبول</option>
+                    <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>مرفوض</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <small class="opacity-75">عرض جميع التقارير المقدمة في النظام</small>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-light no-print">
+                    <i class="fas fa-arrow-left me-2"></i>رجوع للوحة التحكم
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- الإجراءات الجماعية -->
+    {% if username == 'admin' %}
+    <div class="bulk-actions" id="bulkActions">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="select-all-container">
+                    <input type="checkbox" id="selectAll" class="form-check-input">
+                    <label for="selectAll">تحديد الكل</label>
+                    <span class="selected-count" id="selectedCount">0 محدد</span>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-danger" id="deleteSelected" disabled>
+                    <i class="fas fa-trash me-2"></i>حذف المحدد
+                </button>
+                <button class="btn btn-secondary" id="clearSelection">
+                    <i class="fas fa-times me-2"></i>إلغاء التحديد
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="alert alert-info text-center" style="font-size:1.1rem;" id="noReportsAlert" {% if reports and reports|length > 0 %}hidden{% endif %}>
+        لا توجد تقارير يومية بعد. عند إرسال أي تقرير من المستخدمين سيظهر هنا تلقائياً.
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+        <thead>
+            <tr>
+                {% if username == 'admin' %}
+                <th class="no-print" style="width: 40px;">
+                    <i class="fas fa-check-square text-primary"></i>
+                </th>
+                {% endif %}
+                <th>#</th>
+                <th>اسم المستخدم</th>
+                <th>الاسم</th>
+                <th>الرتبة</th>
+                <th>التاريخ</th>
+                <th>الساعة</th>
+                <th>موضوع التقرير</th>
+                <th>المقبولة</th>
+                <th>المرفوضة</th>
+                <th>الإجمالي</th>
+                <th>صورة الإثبات</th>
+                <th>الحالة</th>
+                <th>سبب الرفض</th>
+                <th>التوقيع</th>
+                <th>التأشيرة</th>
+                <th class="no-print">عرض</th>
+                <th class="no-print">طباعة</th>
+                <th class="no-print">قبول</th>
+                <th class="no-print">رفض</th>
+                <th class="no-print">حذف</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if reports and reports|length > 0 %}
+                {% for r in reports %}
+                <tr id="report-row-{{ r[0] }}">
+                    {% if username == 'admin' %}
+                    <td class="no-print text-center">
+                        <input type="checkbox" class="report-checkbox form-check-input" value="{{ r[0] }}" data-report-id="{{ r[0] }}">
+                    </td>
+                    {% endif %}
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td class="text-success fw-bold">{{ r[6] }}</td>
+                    <td class="text-danger fw-bold">{{ r[7] }}</td>
+                    <td class="fw-bold">{{ r[8] }}</td>
+                    <td>
+                        {% if r[9] %}
+                            <img src="{{ url_for('static', filename=r[9]) }}" class="report-img" alt="صورة الإثبات" style="cursor:pointer;" onclick="showProofModal('{{ url_for('static', filename=r[9]) }}')">
+                        {% else %}
+                            <span class="text-muted">لا يوجد</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r[10] == 'pending' %}
+                            <span class="badge bg-warning text-dark">بانتظار القائد</span>
+                        {% elif r[10] == 'approved' %}
+                            <span class="badge bg-success">مقبول</span>
+                        {% elif r[10] == 'rejected' %}
+                            <span class="badge bg-danger">مرفوض</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r|length > 12 and r[11] and r[10] == 'rejected' %}
+                            <span class="text-danger">{{ r[11] }}</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if commander_signature %}
+                            <img src="{{ url_for('static', filename=commander_signature) }}" alt="التوقيع" style="height:40px; border-radius:4px;">
+                        {% else %}
+                            <span class="text-muted">لا يوجد</span>
+                        {% endif %}
+                        <a href="{{ url_for('signature_pad') }}" target="_blank" class="btn btn-outline-primary btn-sm mt-1">توقيع</a>
+                    </td>
+                    <td>
+                        {% if commander_visa %}
+                            <img src="{{ url_for('static', filename=commander_visa) }}" alt="التأشيرة" style="height:40px; border-radius:4px;">
+                        {% else %}
+                            <span class="text-muted">لا يوجد</span>
+                        {% endif %}
+                        <a href="{{ url_for('visa_pad') }}" target="_blank" class="btn btn-outline-success btn-sm mt-1">تأشيرة</a>
+                    </td>
+                    <td class="no-print">
+                        <button class="btn btn-info btn-sm" onclick="showReportModal({{ r[0] }})"><i class="fas fa-eye"></i> عرض</button>
+                    </td>
+                    <td class="no-print">
+                        <button class="btn btn-outline-primary btn-sm" onclick="printReport({{ r[0] }})">طباعة</button>
+                    </td>
+                    <td class="no-print">
+                        {% if r[10] == 'pending' %}
+                        <a href="{{ url_for('approve_report', report_id=r[0]) }}" class="btn btn-success btn-sm" title="قبول التقرير">
+                            <i class="fas fa-check"></i> قبول
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="no-print">
+                        {% if r[10] == 'pending' %}
+                        <a href="{{ url_for('reject_report', report_id=r[0]) }}" class="btn btn-warning btn-sm" title="رفض التقرير">
+                            <i class="fas fa-times"></i> رفض
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="no-print">
+                        <a href="{{ url_for('delete_report', report_id=r[0]) }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف هذا التقرير؟')" title="حذف التقرير">
+                            <i class="fas fa-trash"></i> حذف
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="19" class="text-center text-muted py-5">
+                        <div class="mb-3">لا توجد تقارير يومية بعد.</div>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-info btn-sm" disabled><i class="fas fa-eye"></i> عرض</button>
+                            <button class="btn btn-outline-primary btn-sm" disabled>طباعة</button>
+                            <button class="btn btn-success btn-sm" disabled><i class="fas fa-check"></i> قبول</button>
+                            <button class="btn btn-warning btn-sm" disabled><i class="fas fa-times"></i> رفض</button>
+                            <button class="btn btn-danger btn-sm" disabled><i class="fas fa-trash"></i> حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    </div>
+    {% if not reports %}
+        <div class="alert alert-info text-center">لا توجد تقارير يومية بعد.</div>
+    {% endif %}
+    <div id="print-area" class="print-area" style="display:none;">
+        <!-- سيتم تعبئتها عند الطباعة -->
+    </div>
+</div>
+
+<!-- Modal for proof image -->
+<div class="modal fade" id="proofModal" tabindex="-1" aria-labelledby="proofModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="proofModalLabel">صورة الإثبات</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="proofModalImg" src="" alt="صورة الإثبات" style="max-width:100%; max-height:70vh; border-radius:8px;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for report details -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportModalLabel">تفاصيل التقرير اليومي</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body" id="reportModalBody">
+        <!-- سيتم تعبئتها بالجافاسكريبت -->
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    // متغيرات للاختيار الجماعي
+    let selectedReports = new Set();
+    
+    function printReport(id) {
+        var row = document.getElementById('report-row-' + id);
+        var tds = row.getElementsByTagName('td');
+        var commanderName = "{{ commander_name }}";
+        var commanderRank = "{{ commander_rank }}";
+        var commanderSignature = "{{ commander_signature }}";
+        var logo = "{{ logo }}";
+        var ministryName = "{{ ministry_name }}";
+        var headerText = "{{ header_text }}";
+        var footerText = "{{ footer_text }}";
+        var html = '';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">';
+        html += '<div style="text-align:right;width:33%;font-weight:bold;font-size:1.1rem;">' + ministryName + '<br><span style=\"font-size:0.95rem;font-weight:normal;\">' + headerText + '</span></div>';
+        html += '<div style="text-align:center;width:34%;">';
+        if (logo) {
+            html += '<img src="/static/' + logo + '" alt="الشعار" style="height:80px;display:inline-block;">';
+        }
+        html += '</div>';
+        html += '<div style="width:33%;"></div>';
+        html += '</div>';
+        html += '<div style="text-align:center;font-size:1.2rem;font-weight:bold;margin-bottom:20px;">بيان/ تقرير يومي</div>';
+        html += '<table class="table table-bordered" style="width:70%;margin:0 auto 30px auto;font-size:1.1rem;">';
+        html += '<tr><th style="width:30%">الاسم</th><td>' + tds[1].innerText + '</td></tr>';
+        html += '<tr><th>الرتبة</th><td>' + tds[2].innerText + '</td></tr>';
+        html += '<tr><th>التاريخ (هجري)</th><td>' + tds[3].innerText + '</td></tr>';
+        html += '<tr><th>الساعة</th><td>' + tds[4].innerText + '</td></tr>';
+        html += '<tr><th>موضوع التقرير</th><td>' + tds[5].innerText + '</td></tr>';
+        html += '<tr><th>عدد المخالفات المقبولة</th><td>' + tds[6].innerText + '</td></tr>';
+        html += '<tr><th>عدد المخالفات المرفوضة</th><td>' + tds[7].innerText + '</td></tr>';
+        html += '<tr><th>الإجمالي</th><td>' + tds[8].innerText + '</td></tr>';
+        html += '<tr><th>صورة الإثبات</th><td>' + tds[9].innerHTML + '</td></tr>';
+        html += '</table>';
+        html += '<div style="margin:50px 0 0 0;text-align:right;font-size:1.1rem;font-weight:bold;">';
+        html += '<span>اسم القائد:</span> <span style="font-size:1.15rem;">' + commanderName + '</span><br>';
+        html += '<span>الرتبة:</span> <span style="font-size:1.1rem; color:#444;">' + commanderRank + '</span>';
+        html += '</div>';
+        document.getElementById('print-area').innerHTML = html;
+        document.getElementById('print-area').style.display = 'block';
+        window.print();
+        document.getElementById('print-area').style.display = 'none';
+    }
+
+    function showProofModal(imgUrl) {
+        var modalImg = document.getElementById('proofModalImg');
+        modalImg.src = imgUrl;
+        var modal = new bootstrap.Modal(document.getElementById('proofModal'));
+        modal.show();
+    }
+    
+    // وظائف الاختيار الجماعي
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if username == 'admin' %}
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const reportCheckboxes = document.querySelectorAll('.report-checkbox');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        const deleteSelectedBtn = document.getElementById('deleteSelected');
+        const clearSelectionBtn = document.getElementById('clearSelection');
+        
+        // تحديث عدد التقارير المحددة
+        function updateSelectedCount() {
+            const count = selectedReports.size;
+            selectedCount.textContent = count + ' محدد';
+            deleteSelectedBtn.disabled = count === 0;
+            
+            if (count > 0) {
+                bulkActions.classList.add('show');
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+        
+        // تحديد/إلغاء تحديد الكل
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            reportCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                if (isChecked) {
+                    selectedReports.add(checkbox.value);
+                } else {
+                    selectedReports.delete(checkbox.value);
+                }
+            });
+            updateSelectedCount();
+        });
+        
+        // تحديد/إلغاء تحديد تقرير واحد
+        reportCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    selectedReports.add(this.value);
+                } else {
+                    selectedReports.delete(this.value);
+                }
+                
+                // تحديث حالة "تحديد الكل"
+                const allChecked = Array.from(reportCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(reportCheckboxes).some(cb => cb.checked);
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                
+                updateSelectedCount();
+            });
+        });
+        
+        // حذف التقارير المحددة
+        deleteSelectedBtn.addEventListener('click', function() {
+            if (selectedReports.size === 0) return;
+            
+            const count = selectedReports.size;
+            const confirmMessage = `هل أنت متأكد من حذف ${count} تقرير محدد؟\n\nهذا الإجراء لا يمكن التراجع عنه.`;
+            
+            if (confirm(confirmMessage)) {
+                // إرسال طلب حذف جماعي
+                const formData = new FormData();
+                formData.append('report_ids', Array.from(selectedReports).join(','));
+                
+                fetch('/delete_multiple_reports', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // إزالة الصفوف المحذوفة من الجدول
+                        selectedReports.forEach(reportId => {
+                            const row = document.getElementById('report-row-' + reportId);
+                            if (row) {
+                                row.remove();
+                            }
+                        });
+                        
+                        // إعادة تعيين الاختيار
+                        selectedReports.clear();
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                        reportCheckboxes.forEach(cb => cb.checked = false);
+                        updateSelectedCount();
+                        
+                        // إظهار رسالة نجاح
+                        alert(`تم حذف ${count} تقرير بنجاح`);
+                        
+                        // إعادة تحميل الصفحة إذا لم يتبق تقارير
+                        if (document.querySelectorAll('tbody tr').length === 0) {
+                            location.reload();
+                        }
+                    } else {
+                        alert('حدث خطأ أثناء حذف التقارير: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ أثناء حذف التقارير');
+                });
+            }
+        });
+        
+        // إلغاء التحديد
+        clearSelectionBtn.addEventListener('click', function() {
+            selectedReports.clear();
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+            reportCheckboxes.forEach(cb => cb.checked = false);
+            updateSelectedCount();
+        });
+        {% endif %}
+    });
+
+    function showReportModal(reportId) {
+        // جلب بيانات الصف من الجدول
+        var row = document.getElementById('report-row-' + reportId);
+        var tds = row.getElementsByTagName('td');
+        var html = '<table class="table table-bordered">';
+        html += '<tr><th>الاسم</th><td>' + tds[1].innerText + '</td></tr>';
+        html += '<tr><th>الرتبة</th><td>' + tds[2].innerText + '</td></tr>';
+        html += '<tr><th>التاريخ</th><td>' + tds[3].innerText + '</td></tr>';
+        html += '<tr><th>الساعة</th><td>' + tds[4].innerText + '</td></tr>';
+        html += '<tr><th>موضوع التقرير</th><td>' + tds[5].innerText + '</td></tr>';
+        html += '<tr><th>المقبولة</th><td>' + tds[6].innerText + '</td></tr>';
+        html += '<tr><th>المرفوضة</th><td>' + tds[7].innerText + '</td></tr>';
+        html += '<tr><th>الإجمالي</th><td>' + tds[8].innerText + '</td></tr>';
+        html += '<tr><th>صورة الإثبات</th><td>' + tds[9].innerHTML + '</td></tr>';
+        html += '<tr><th>الحالة</th><td>' + tds[10].innerText + '</td></tr>';
+        html += '<tr><th>سبب الرفض</th><td>' + tds[11].innerText + '</td></tr>';
+        html += '</table>';
+        document.getElementById('reportModalBody').innerHTML = html;
+        var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+        modal.show();
+    }
+</script>
+{% endblock %} 

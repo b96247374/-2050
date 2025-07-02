@@ -1,0 +1,40 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}طباعة طلب إذن/استئذان{% endblock %}
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="header text-center mb-4">
+        {% if logo %}
+        <img src="{{ url_for('static', filename=logo) }}" class="logo" alt="شعار الجهة" style="max-width:100px;max-height:100px;">
+        {% endif %}
+        <div class="fw-bold">{{ ministry_name or 'الجهة الرسمية' }}</div>
+        <div>{{ header_text or '' }}</div>
+    </div>
+    <div class="report-title text-center mb-3" style="font-size:1.3rem;font-weight:bold;">طلب إذن/استئذان رسمي</div>
+    <table class="table table-bordered mb-4" style="max-width:700px;margin:auto;">
+        <tr><th>اسم مقدم الطلب</th><td>{{ req[1] }}</td></tr>
+        <tr><th>نوع الإذن</th><td>{{ req[2] }}</td></tr>
+        <tr><th>التاريخ</th><td>{{ req[3] }}</td></tr>
+        <tr><th>الوقت</th><td>{{ req[4] }}</td></tr>
+        <tr><th>سبب الطلب</th><td>{{ req[5] or '-' }}</td></tr>
+        <tr><th>ملاحظات</th><td>{{ req[6] or '-' }}</td></tr>
+    </table>
+    <div class="row mt-4">
+        <div class="col-md-6 text-center">
+            <div class="fw-bold">توقيع القائد</div>
+            {% if signature %}
+            <img src="{{ url_for('static', filename=signature) }}" alt="توقيع القائد" style="max-width:120px;max-height:60px;">
+            {% endif %}
+            <div class="mt-1 small text-muted">{{ commander_name }}{% if commander_rank %} - {{ commander_rank }}{% endif %}</div>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="fw-bold">تأشيرة القائد</div>
+            {% if visa %}
+            <img src="{{ url_for('static', filename=visa) }}" alt="تأشيرة القائد" style="max-width:120px;max-height:60px;">
+            {% endif %}
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <button class="btn btn-primary" onclick="window.print()">طباعة</button>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,125 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}عرض التقارير اليومية{% endblock %}
+{% block content %}
+<pre>{{ reports }}</pre>
+<div class="container mt-4">
+    <h3 class="mb-4 text-center">عرض التقارير اليومية</h3>
+    {% if reports and reports|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    {% if user.role == 'admin' or user.role == 'commander' %}
+                    <th class="no-print" style="width: 40px;">
+                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                    </th>
+                    {% endif %}
+                    <th>#</th>
+                    <th>اسم المستخدم</th>
+                    <th>الاسم</th>
+                    <th>الرتبة</th>
+                    <th>التاريخ</th>
+                    <th>الساعة</th>
+                    <th>موضوع التقرير</th>
+                    <th>المقبولة</th>
+                    <th>المرفوضة</th>
+                    <th>الإجمالي</th>
+                    <th>صورة الإثبات</th>
+                    <th>الحالة</th>
+                    <th>سبب الرفض</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    {% if user.role == 'admin' or user.role == 'commander' %}
+                    <td class="no-print text-center">
+                        <input type="checkbox" class="report-checkbox" value="{{ r[0] }}">
+                    </td>
+                    {% endif %}
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td class="text-success fw-bold">{{ r[7] }}</td>
+                    <td class="text-danger fw-bold">{{ r[8] }}</td>
+                    <td class="fw-bold">{{ r[9] }}</td>
+                    <td>
+                        {% if r[10] %}
+                        <a href="{{ url_for('static', filename=r[10]) }}" target="_blank">عرض</a>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>
+                        {% if r[11] == 'approved' %}
+                            <span class="badge bg-success">مقبول</span>
+                        {% elif r[11] == 'rejected' %}
+                            <span class="badge bg-danger">مرفوض</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">بانتظار القائد</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if r[12] %}{{ r[12] }}{% else %}-{% endif %}</td>
+                    <td>
+                        {% if r[11] == 'pending' %}
+                        <form method="post" style="display:inline-block;">
+                            <input type="hidden" name="report_id" value="{{ r[0] }}">
+                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">قبول</button>
+                        </form>
+                        <form method="post" style="display:inline-block;">
+                            <input type="hidden" name="report_id" value="{{ r[0] }}">
+                            <input type="text" name="rejection_reason" placeholder="سبب الرفض" class="form-control mb-1" style="width:120px;display:inline-block;">
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">رفض</button>
+                        </form>
+                        {% endif %}
+                        {% if user.role == 'commander' or user.role == 'admin' %}
+                        <a href="{{ url_for('delete_comprehensive_report', report_id=r[0]) }}" class="btn btn-outline-danger btn-sm mt-1" onclick="return confirm('هل أنت متأكد من حذف التقرير؟');">حذف</a>
+                        <a href="{{ url_for('comprehensive_report_print', report_id=r[0]) }}" class="btn btn-outline-primary btn-sm mt-1" target="_blank">طباعة</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">لا توجد تقارير شاملة بعد.</div>
+    {% endif %}
+    {% if user.role == 'admin' or user.role == 'commander' %}
+    <div class="mb-3">
+        <button class="btn btn-danger" id="deleteSelectedBtn" onclick="deleteSelectedReports()">حذف التقارير المحددة</button>
+    </div>
+    {% endif %}
+</div>
+<script>
+function toggleSelectAll(source) {
+    const checkboxes = document.querySelectorAll('.report-checkbox');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+}
+function deleteSelectedReports() {
+    const selected = Array.from(document.querySelectorAll('.report-checkbox:checked')).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert('يرجى تحديد تقارير للحذف أولاً.');
+        return;
+    }
+    if (!confirm('هل أنت متأكد من حذف التقارير المحددة؟')) return;
+    // إرسال الطلب عبر POST
+    fetch('/delete_multiple_reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'report_ids=' + selected.join(',')
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'حدث خطأ أثناء الحذف.');
+        }
+    });
+}
+</script>
+{% endblock %} 

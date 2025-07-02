@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول - نظام التقارير الإدارية</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f7f9fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .login-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+            padding: 28px 18px 16px 18px;
+            width: 100%;
+            max-width: 330px;
+            min-height: 340px;
+            position: relative;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-container::before {
+            display: none;
+        }
+        
+        .logo-section {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .logo-section img {
+            height: 70px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .logo-section h2 {
+            color: #1a3c1a;
+            font-weight: 800;
+            margin-bottom: 2px;
+            font-size: 1.45rem;
+            text-align: center;
+        }
+        
+        .logo-section p {
+            color: #4a4a4a;
+            font-size: 0.97rem;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #1a3c1a;
+            margin-bottom: 6px;
+            display: block;
+            font-size: 1rem;
+        }
+        
+        .input-group {
+            flex-direction: row-reverse;
+        }
+        
+        .input-group-text {
+            background: #e6f0e6;
+            border: 1px solid #cdd9cd;
+            color: #176c2a;
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .input-group .form-control {
+            border-radius: 0 8px 8px 0;
+            border-right: none;
+        }
+        
+        .form-control {
+            border: 1.5px solid #cdd9cd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.97rem;
+            background-color: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            border-color: #176c2a;
+            box-shadow: 0 0 0 0.12rem rgba(33,136,56,0.10);
+            background-color: #fff;
+        }
+        
+        .btn-login {
+            background: #218838;
+            border: none;
+            border-radius: 8px;
+            padding: 13px 0;
+            font-weight: 700;
+            font-size: 1.12rem;
+            color: white;
+            width: 100%;
+            margin-top: 8px;
+            margin-bottom: 0;
+            box-shadow: 0 2px 8px rgba(33,136,56,0.07);
+            transition: background 0.2s;
+        }
+        
+        .btn-login:hover {
+            background: #176c2a;
+            color: #fff;
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .alert-danger {
+            background: #fee;
+            color: #c53030;
+            border-left: 4px solid #c53030;
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        /* تحسينات للجوال - شاشات صغيرة */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .login-container {
+                padding: 30px 10px;
+                border-radius: 15px;
+                max-width: 98vw;
+                width: 98vw;
+                min-height: 50vh;
+                height: 55vh;
+            }
+            
+            .logo-section img {
+                height: 70px;
+            }
+            
+            .logo-section h2 {
+                font-size: 1.4rem;
+            }
+            
+            .form-control {
+                padding: 12px 15px;
+                font-size: 16px;
+                height: 50px;
+            }
+            
+            .input-group-text {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .btn-login {
+                padding: 15px 20px;
+                font-size: 16px;
+                height: 50px;
+            }
+            
+            .form-label {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* تحسينات للجوال - شاشات متوسطة */
+        @media (min-width: 481px) and (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .login-container {
+                padding: 35px 30px;
+                max-width: 90%;
+                width: 90%;
+                min-height: 45vh;
+            }
+            
+            .logo-section img {
+                height: 75px;
+            }
+            
+            .form-control {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .btn-login {
+                padding: 14px 25px;
+                font-size: 16px;
+            }
+        }
+        
+        /* تحسينات للجوال - شاشات كبيرة */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .login-container {
+                max-width: 500px;
+                min-height: 40vh;
+            }
+        }
+        
+        /* منع التمرير والثبات على الجوال */
+        html, body {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* تحسين الأداء */
+        .login-container {
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+        
+        /* تأثيرات بصرية */
+        .form-control:focus {
+            transform: scale(1.02);
+        }
+        
+        .btn-login:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* تحسين عرض النموذج على الجوال */
+        @media (max-width: 768px) {
+            .form-group {
+                margin-bottom: 25px;
+            }
+            
+            .input-group {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border-radius: 10px;
+            }
+            
+            .alert {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .footer-text {
+                font-size: 12px;
+                margin-top: 25px;
+            }
+        }
+        
+        /* تحسين التباعد على الشاشات الصغيرة */
+        @media (max-height: 600px) {
+            .login-container {
+                padding: 20px 25px;
+                min-height: 60vh;
+            }
+            
+            .logo-section {
+                margin-bottom: 20px;
+            }
+            
+            .logo-section img {
+                height: 50px;
+                margin-bottom: 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            body {
+                min-height: 100vh;
+                height: 100vh;
+                padding: 0;
+            }
+            .login-container {
+                max-width: 520px;
+                min-height: 420px;
+                padding: 48px 40px 36px 40px;
+            }
+        }
+        
+        #hijri-time {
+            font-size: 1.08rem;
+            color: #222;
+            background: #f1f5f1;
+            border-radius: 8px;
+            padding: 6px 0;
+            margin: 0 auto 12px auto;
+            width: 90%;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 1px 4px rgba(26,60,26,0.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename=logo) if logo else 'logo.png' }}" alt="Logo" onerror="this.style.display='none';" style="display:block;margin:0 auto 10px auto;">
+            <div id="hijri-time" style="font-size: 1.13rem; color: #111; background: #f1f5f1; border-radius: 10px; padding: 7px 0; margin: 0 auto 14px auto; width: 85%; text-align: center; font-weight: bold; letter-spacing: 1px; box-shadow: 0 1px 4px rgba(26,60,26,0.06);"></div>
+        </div>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user me-2"></i>اسم المستخدم
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" class="form-control" id="username" name="username" 
+                           placeholder="أدخل اسم المستخدم" required autocomplete="username">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock me-2"></i>كلمة المرور
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                تسجيل الدخول
+            </button>
+            <div class="form-check" style="font-size: 0.95rem; color: #111; text-align: center; font-weight: 500; margin: 12px 0 0 0;">
+                <input class="form-check-input" type="checkbox" checked disabled style="display:none;">
+                <label class="form-check-label" style="font-size: 0.95rem; color: #111; font-weight: 500;">
+                    بدخولك للنظام أنت <span style="text-decoration:underline;">تتعهد</span> بالمحافظة على سرية المعلومات وعدم إساءة استخدام النظام
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='ummalqura-calendar.min.js') }}"></script>
+    <script>
+        // منع التمرير الأفقي والتحكم في العرض
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // منع التكبير على الجوال
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
+        
+        // تحسين تجربة المستخدم على الجوال
+        document.addEventListener('DOMContentLoaded', function() {
+            // منع التكبير عند التركيز على الحقول
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    // تأخير قصير لضمان استقرار الصفحة
+                    setTimeout(() => {
+                        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+                
+                // منع التكبير عند الكتابة
+                input.addEventListener('input', function() {
+                    this.style.fontSize = '16px';
+                });
+            });
+            
+            // تحسين أداء النموذج
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('.btn-login');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري التحميل...';
+            });
+            
+            // منع التمرير عند النقر على الأزرار
+            const buttons = document.querySelectorAll('button, .btn');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.click();
+                });
+            });
+            
+            // ضبط ارتفاع الحاوية حسب حجم الشاشة
+            function adjustContainerHeight() {
+                const container = document.querySelector('.login-container');
+                const windowHeight = window.innerHeight;
+                const windowWidth = window.innerWidth;
+                
+                if (windowWidth <= 480) {
+                    // للشاشات الصغيرة - نصف ارتفاع الشاشة
+                    container.style.minHeight = '50vh';
+                    container.style.maxHeight = '70vh';
+                } else if (windowWidth <= 768) {
+                    // للشاشات المتوسطة
+                    container.style.minHeight = '45vh';
+                    container.style.maxHeight = '65vh';
+                } else {
+                    // للشاشات الكبيرة
+                    container.style.minHeight = '40vh';
+                    container.style.maxHeight = '60vh';
+                }
+            }
+            
+            // تطبيق الضبط عند تحميل الصفحة وتغيير حجم النافذة
+            adjustContainerHeight();
+            window.addEventListener('resize', adjustContainerHeight);
+        });
+        
+        // منع التمرير عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            window.scrollTo(0, 0);
+        });
+        
+        // تحويل ميلادي إلى هجري (تقريبي)
+        function gregorianToHijri(date) {
+            var m = date.getMonth() + 1, d = date.getDate(), y = date.getFullYear();
+            var jd = parseInt((1461 * (y + 4800 + parseInt((m - 14) / 12))) / 4) + parseInt((367 * (m - 2 - 12 * (parseInt((m - 14) / 12)))) / 12) - parseInt((3 * parseInt(((y + 4900 + parseInt((m - 14) / 12)) / 100))) / 4) + d - 32075;
+                var l = jd - 1948440 + 10632;
+            var n = parseInt((l - 1) / 10631);
+                l = l - 10631 * n + 354;
+            var j = (parseInt((10985 - l) / 5316)) * (parseInt((50 * l) / 17719)) + (parseInt(l / 5670)) * (parseInt((43 * l) / 15238));
+            l = l - (parseInt((30 - j) / 15)) * (parseInt((17719 * j) / 50)) - (parseInt(j / 16)) * (parseInt((15238 * j) / 43)) + 29;
+            var month = parseInt((24 * l) / 709);
+            var day = l - parseInt((709 * month) / 24);
+            var year = 30 * n + j - 30;
+            return {day: day, month: month, year: year};
+            }
+        function getSaudiDate() {
+            let now = new Date();
+            try {
+                let saDate = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Riyadh'}));
+                return saDate;
+            } catch(e) {
+                let utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                return new Date(utc + (3*60*60*1000));
+            }
+        }
+        function updateHijriTime() {
+            var now = getSaudiDate();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var ampm = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            var timeStr = hours + ':' + minutes + ' ' + ampm;
+            // جلب التاريخ الهجري من API
+            fetch('https://api.aladhan.com/v1/gToH?date=' + now.getDate() + '-' + (now.getMonth()+1) + '-' + now.getFullYear() + '&adjustment=0&latitude=24.7136&longitude=46.6753&method=2&school=1&iso8601=true')
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.data && data.data.hijri) {
+                    var hijri = data.data.hijri;
+                    var hijriStr = hijri.day + ' ' + hijri.month.ar + ' ' + hijri.year + ' هـ';
+                    document.getElementById('hijri-time').textContent = hijriStr + ' - ' + timeStr;
+                } else {
+                    document.getElementById('hijri-time').textContent = timeStr;
+                }
+            })
+            .catch(() => {
+                document.getElementById('hijri-time').textContent = timeStr;
+            });
+        }
+        updateHijriTime();
+        setInterval(updateHijriTime, 30000);
+    </script>
+</body>
+</html> 

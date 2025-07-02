@@ -1,0 +1,25 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}رفض التقرير{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>رفض التقرير</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h3>رفض التقرير</h3>
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">سبب الرفض</label>
+            <textarea name="rejection_reason" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">رفض التقرير</button>
+        <a href="{{ url_for('daily_reports') }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+</body>
+</html>
+{% endblock %} 

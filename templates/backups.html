@@ -1,0 +1,35 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}النسخ الاحتياطي{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>النسخ الاحتياطية</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename=logo) }}" alt="شعار النظام" style="height:60px;">
+    </div>
+    <h3>النسخ الاحتياطية المتوفرة</h3>
+    {% if backups %}
+        <ul class="list-group">
+        {% for backup in backups %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ backup }}</span>
+                <form method="post" action="{{ url_for('restore_backup_route', backup_name=backup) }}" onsubmit="return confirm('هل أنت متأكد من استعادة هذه النسخة؟');">
+                    <button type="submit" class="btn btn-warning btn-sm">استعادة</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info mt-3">لا توجد نسخ احتياطية بعد.</div>
+    {% endif %}
+    <a href="{{ url_for('settings') }}" class="btn btn-secondary mt-3">رجوع للإعدادات</a>
+</div>
+</body>
+</html>
+{% endblock %} 

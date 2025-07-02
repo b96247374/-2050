@@ -1,0 +1,74 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}الغيابات/التأخير/عدم تنفيذ الأوامر{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+    <h3 class="mb-4 text-center">سجل الغيابات/التأخير/عدم تنفيذ الأوامر</h3>
+    <form method="post" class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">اسم العسكري المخالف <span class="text-danger">*</span></label>
+                <input type="text" name="military_name" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع المخالفة <span class="text-danger">*</span></label>
+                <select name="violation_type" class="form-select" required>
+                    <option value="">اختر</option>
+                    <option value="غياب">غياب</option>
+                    <option value="غياب بعذر">غياب بعذر</option>
+                    <option value="تأخير">تأخير</option>
+                    <option value="تأخير بعذر">تأخير بعذر</option>
+                    <option value="عدم تنفيذ الأوامر">عدم تنفيذ الأوامر</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">يوم الغياب/التأخير <span class="text-danger">*</span></label>
+                <input type="text" name="day_name" class="form-control" placeholder="مثال: الأحد" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">التاريخ <span class="text-danger">*</span></label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control">
+            </div>
+            <div class="col-md-12 mt-3 text-center">
+                <button type="submit" class="btn btn-success px-5">إضافة مخالفة</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>اسم العسكري المخالف</th>
+                    <th>نوع المخالفة</th>
+                    <th>يوم الغياب/التأخير</th>
+                    <th>التاريخ</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in violations %}
+                <tr>
+                    <td>{{ v[0] }}</td>
+                    <td>{{ v[1] }}</td>
+                    <td>{{ v[2] }}</td>
+                    <td>{{ v[3] }}</td>
+                    <td>{{ v[4] }}</td>
+                    <td>{{ v[5] }}</td>
+                    <td>
+                        <a href="{{ url_for('violation_report_print', violation_id=v[0]) }}" class="btn btn-outline-primary btn-sm" target="_blank">عرض تقرير</a>
+                        <a href="{{ url_for('delete_violation', violation_id=v[0]) }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف المخالفة؟');">حذف</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted">لا توجد مخالفات مسجلة بعد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

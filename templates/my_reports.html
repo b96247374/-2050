@@ -1,0 +1,70 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}تقاريري{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 98vw;">
+    <h3 class="mb-4 text-center">تقاريري</h3>
+    {% if reports and reports|length > 0 %}
+                        <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                    <th>الاسم</th>
+                    <th>الرتبة</th>
+                                        <th>التاريخ</th>
+                    <th>الساعة</th>
+                                        <th>الموضوع</th>
+                    <th>المقبولة</th>
+                    <th>المرفوضة</th>
+                    <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                    <th>صورة الإثبات</th>
+                    <th>سبب الرفض</th>
+                    <th class="no-print">عرض</th>
+                    <th class="no-print">طباعة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in reports %}
+                                    <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                                        <td>{{ r[3] }}</td>
+                                        <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td>{{ r[7] }}</td>
+                    <td>{{ r[8] }}</td>
+                    <td>
+                        {% if r[10] == 'approved' %}
+                            <span class="badge bg-success">مقبول</span>
+                        {% elif r[10] == 'rejected' %}
+                            <span class="badge bg-danger">مرفوض</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">بانتظار القائد</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                        {% if r[9] %}
+                        <a href="{{ url_for('static', filename=r[9]) }}" target="_blank">عرض</a>
+                        {% else %}-{% endif %}
+                                        </td>
+                    <td>{{ r[11] or '-' }}</td>
+                    <td class="no-print">
+                        <button class="btn btn-info btn-sm" onclick="showReportModal({{ r[0] }})"><i class="fas fa-eye"></i> عرض</button>
+                                        </td>
+                    <td class="no-print">
+                        <button class="btn btn-outline-primary btn-sm" onclick="printReport({{ r[0] }})">طباعة</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+    <div class="alert alert-info text-center">لا توجد تقارير بعد.</div>
+                        {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">رجوع للوحة التحكم</a>
+                    </div>
+{% endblock %} 

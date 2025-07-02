@@ -1,0 +1,131 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}إنشاء تقرير جديد{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 600px;">
+    <h3 class="mb-3 text-center">إنشاء تقرير جديد</h3>
+    <div class="card mb-3 shadow-sm d-block d-md-none">
+        <div class="card-body text-center">
+            <div class="mb-1"><strong>الاسم:</strong> {{ name }}</div>
+            <div class="mb-1"><strong>الرتبة:</strong> {{ rank }}</div>
+            <div class="mb-1"><strong>اسم المستخدم:</strong> {{ username }}</div>
+            {% if hijri_date %}
+            <div class="mb-1"><strong>التاريخ:</strong> {{ hijri_date }}</div>
+            {% endif %}
+            {% if current_time %}
+            <div class="mb-1"><strong>الساعة:</strong> {{ current_time }}</div>
+    {% endif %}
+        </div>
+    </div>
+    <div class="card mb-3 shadow-sm d-none d-md-block">
+        <div class="card-body text-center">
+            <div class="mb-1"><strong>الاسم:</strong> {{ name }}</div>
+            <div class="mb-1"><strong>الرتبة:</strong> {{ rank }}</div>
+            <div class="mb-1"><strong>اسم المستخدم:</strong> {{ username }}</div>
+            {% if hijri_date %}
+            <div class="mb-1"><strong>التاريخ:</strong> {{ hijri_date }}</div>
+                        {% endif %}
+            {% if current_time %}
+            <div class="mb-1"><strong>الساعة:</strong> {{ current_time }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+    {% if session.success_message %}
+    <div id="successAlert" class="alert alert-success text-center position-sticky top-0" style="z-index:9999;font-size:1.1rem;">
+        {{ session.success_message }}
+        <button type="button" class="btn-close float-start" aria-label="إغلاق" onclick="document.getElementById('successAlert').style.display='none';"></button>
+                    </div>
+                    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">الموضوع <span class="text-danger">*</span></label>
+            <input type="text" name="subject" class="form-control" required value="{{ request.form.subject or '' }}">
+                            </div>
+        <div class="row mb-3 d-block d-md-none">
+            <div class="col">
+                <label class="form-label">عدد المخالفات المقبولة <span class="text-danger">*</span></label>
+                <input type="number" name="accepted" id="accepted_mobile" class="form-control" min="0" required value="{{ request.form.accepted or '' }}">
+                            </div>
+            <div class="col">
+                <label class="form-label">عدد المخالفات المرفوضة <span class="text-danger">*</span></label>
+                <input type="number" name="rejected" id="rejected_mobile" class="form-control" min="0" required value="{{ request.form.rejected or '' }}">
+                                    </div>
+                                </div>
+        <div class="row mb-3 d-none d-md-flex">
+            <div class="col">
+                <label class="form-label">عدد المقبولة <span class="text-danger">*</span></label>
+                <input type="number" name="accepted" id="accepted_desktop" class="form-control" min="0" required value="{{ request.form.accepted or '' }}">
+                            </div>
+            <div class="col">
+                <label class="form-label">عدد المرفوضة <span class="text-danger">*</span></label>
+                <input type="number" name="rejected" id="rejected_desktop" class="form-control" min="0" required value="{{ request.form.rejected or '' }}">
+                        </div>
+                    </div>
+        <div class="mb-3">
+            <label class="form-label">الإجمالي</label>
+            <input type="number" id="total" class="form-control bg-light" readonly>
+                                </div>
+        <div class="mb-3">
+            <label class="form-label">صورة الإثبات <span class="text-danger">*</span></label>
+            <input type="file" name="proof_image" class="form-control" accept="image/*" required>
+                            </div>
+        {% if can_create_for_others and users_list %}
+        <div class="mb-3 d-none d-md-block">
+            <label class="form-label">إنشاء التقرير نيابة عن</label>
+            <select name="selected_user" class="form-select">
+                <option value="self">نفسي</option>
+                {% for u in users_list %}
+                <option value="{{ u[0] }}">{{ u[2] }} ({{ u[3] }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-success w-100 mb-2">إرسال التقرير</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">رجوع إلى لوحة التحكم</a>
+    </form>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script>
+    function updateTotal() {
+        var isMobile = window.innerWidth <= 767;
+        var accepted = 0, rejected = 0;
+        if (isMobile) {
+            accepted = parseInt(document.getElementById('accepted_mobile').value) || 0;
+            rejected = parseInt(document.getElementById('rejected_mobile').value) || 0;
+            } else {
+            accepted = parseInt(document.getElementById('accepted_desktop').value) || 0;
+            rejected = parseInt(document.getElementById('rejected_desktop').value) || 0;
+        }
+        document.getElementById('total').value = accepted + rejected;
+    }
+    if (document.getElementById('accepted_mobile'))
+        document.getElementById('accepted_mobile').addEventListener('input', updateTotal);
+    if (document.getElementById('rejected_mobile'))
+        document.getElementById('rejected_mobile').addEventListener('input', updateTotal);
+    if (document.getElementById('accepted_desktop'))
+        document.getElementById('accepted_desktop').addEventListener('input', updateTotal);
+    if (document.getElementById('rejected_desktop'))
+        document.getElementById('rejected_desktop').addEventListener('input', updateTotal);
+    updateTotal();
+    // إخفاء رسالة النجاح تلقائياً بعد 4 ثوانٍ على الجوال فقط
+    if (window.innerWidth <= 767 && document.getElementById('successAlert')) {
+        setTimeout(function() {
+            document.getElementById('successAlert').style.display = 'none';
+        }, 4000);
+    }
+    // تعطيل الحقول غير الظاهرة حسب الجهاز
+    window.addEventListener('DOMContentLoaded', function() {
+      var isMobile = window.innerWidth <= 767;
+      if (isMobile) {
+        if (document.getElementById('accepted_desktop')) document.getElementById('accepted_desktop').disabled = true;
+        if (document.getElementById('rejected_desktop')) document.getElementById('rejected_desktop').disabled = true;
+            } else {
+        if (document.getElementById('accepted_mobile')) document.getElementById('accepted_mobile').disabled = true;
+        if (document.getElementById('rejected_mobile')) document.getElementById('rejected_mobile').disabled = true;
+      }
+    });
+    </script>
+{% endblock %} 

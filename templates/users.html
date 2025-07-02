@@ -1,0 +1,135 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}المستخدمون{% endblock %}
+{% block content %}
+<style>
+/* الشريط الجانبي داخل الصفحة */
+.user-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.13);
+    z-index: 3000;
+    transition: right 0.3s;
+    padding: 32px 24px 24px 24px;
+    overflow-y: auto;
+    border-radius: 0 0 0 16px;
+}
+.user-sidebar.open {
+    right: 0;
+}
+.user-sidebar .close-btn {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    font-size: 1.3rem;
+    color: #176c2a;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.user-sidebar h4 {
+    margin-bottom: 18px;
+    color: #176c2a;
+    font-weight: bold;
+}
+.user-sidebar .form-check {
+    margin-bottom: 12px;
+}
+.user-sidebar .btn {
+    width: 100%;
+}
+.table-hover tbody tr:hover {
+    background: #eafbe7;
+    cursor: pointer;
+}
+@media (max-width: 767.98px) {
+    .container {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
+    h3 {
+        font-size: 1.1rem;
+    }
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .table {
+        font-size: 0.95rem;
+        min-width: 650px;
+    }
+    .btn, .btn-sm {
+        font-size: 0.95rem !important;
+        padding: 6px 10px !important;
+        margin-bottom: 2px;
+        width: 100%;
+        display: block;
+    }
+    .user-sidebar {
+        width: 100vw !important;
+        right: -100vw;
+        border-radius: 0;
+        padding: 18px 8px 18px 8px;
+    }
+    .user-sidebar.open {
+        right: 0;
+    }
+    .user-sidebar .close-btn {
+        left: 8px;
+        top: 8px;
+        font-size: 1.1rem;
+    }
+    .user-sidebar h4 {
+        font-size: 1.1rem;
+    }
+    .user-sidebar .btn {
+        font-size: 1rem;
+    }
+}
+</style>
+<div class="container mt-4">
+    <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename=logo) }}" alt="شعار النظام" style="height:60px;max-width:90vw;">
+    </div>
+    <h3>إدارة المستخدمين</h3>
+    <a href="{{ url_for('add_user') }}" class="btn btn-success mb-3">إضافة مستخدم جديد</a>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle table-hover" id="usersTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>اسم المستخدم</th>
+                <th>الاسم</th>
+                <th>نوع الرتبة</th>
+                <th>الرتبة</th>
+                <th>الصلاحية</th>
+                    <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+                <tr data-user-id="{{ u[0] }}">
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td>{{ u[2] }}</td>
+                <td>{% if u[3] == 'officer' %}ضابط{% else %}فرد{% endif %}</td>
+                <td>{{ u[4] }}</td>
+                <td>{% if u[5] == 'admin' %}مدير النظام{% elif u[5] == 'officer' %}ضابط{% else %}مستخدم{% endif %}</td>
+                <td>
+                    {% if u[1] != 'admin' %}
+                        <a href="{{ url_for('edit_permissions', user_id=u[0]) }}" class="btn btn-primary btn-sm">تعديل الصلاحيات</a>
+                        <a href="{{ url_for('delete_user', user_id=u[0]) }}" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف المستخدم؟');">حذف</a>
+                    {% else %}
+                    <span class="text-muted">لا يمكن الحذف</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">رجوع</a>
+</div>
+{% endblock %} 

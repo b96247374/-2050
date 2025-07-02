@@ -1,0 +1,148 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}إدارة التوقيع والتأشيرة{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width: 500px;">
+    <h3 class="mb-4 text-center">إدارة التوقيع والتأشيرة الشاملة</h3>
+    {% if msg %}
+    <div class="alert alert-success text-center">{{ msg }}</div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        <div class="mb-4">
+            <label class="form-label">التوقيع الإلكتروني الحالي:</label><br>
+            {% if signature %}
+                <img src="{{ url_for('static', filename=signature) }}" alt="التوقيع" style="max-width: 180px; max-height: 80px; border:1px solid #ccc; background:#fff; padding:4px;">
+                <form method="post" style="display:inline-block;" onsubmit="return confirm('هل أنت متأكد من حذف التوقيع؟');">
+                    <button type="submit" name="delete_signature" class="btn btn-danger btn-sm mt-2">حذف التوقيع</button>
+                </form>
+            {% else %}
+                <span class="text-muted">لا يوجد توقيع مرفوع</span>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">أو ارسم توقيع إلكتروني جديد</label>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="openSignaturePad()">ارسم التوقيع</button>
+            <input type="hidden" name="signature_drawn" id="signature_drawn">
+        </div>
+        <div class="mb-4">
+            <label class="form-label">التأشيرة الحالية:</label><br>
+            {% if visa %}
+                <img src="{{ url_for('static', filename=visa) }}" alt="التأشيرة" style="max-width: 180px; max-height: 80px; border:1px solid #ccc; background:#fff; padding:4px;">
+                <form method="post" style="display:inline-block;" onsubmit="return confirm('هل أنت متأكد من حذف التأشيرة؟');">
+                    <button type="submit" name="delete_visa" class="btn btn-danger btn-sm mt-2">حذف التأشيرة</button>
+                </form>
+            {% else %}
+                <span class="text-muted">لا يوجد تأشيرة مرفوعة</span>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">أو ارسم تأشيرة جديدة</label>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="openVisaPad()">ارسم التأشيرة</button>
+            <input type="hidden" name="visa_drawn" id="visa_drawn">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">اسم القائد:</label>
+            <input type="text" name="commander_name" class="form-control" value="{{ commander_name }}" placeholder="اسم القائد">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">رتبة القائد:</label>
+            <input type="text" name="commander_rank" class="form-control" value="{{ commander_rank }}" placeholder="رتبة القائد">
+        </div>
+        <button type="submit" class="btn btn-success w-100">حفظ التغييرات</button>
+    </form>
+    <div class="alert alert-info mt-3">رفع صورة جديدة سيستبدل الصورة الحالية مباشرة.</div>
+</div>
+<!-- نافذة رسم التوقيع -->
+<div id="signaturePadModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:400px; margin:auto;">
+        <h5 class="mb-2">ارسم التوقيع</h5>
+        <canvas id="signatureCanvas" width="350" height="100" style="border:1px solid #ccc; background:#fff;"></canvas>
+        <div class="mt-2">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearSignaturePad()">مسح</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="saveSignaturePad()">حفظ</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="closeSignaturePad()">إغلاق</button>
+        </div>
+    </div>
+</div>
+<!-- نافذة رسم التأشيرة -->
+<div id="visaPadModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:400px; margin:auto;">
+        <h5 class="mb-2">ارسم التأشيرة</h5>
+        <canvas id="visaCanvas" width="350" height="100" style="border:1px solid #ccc; background:#fff;"></canvas>
+        <div class="mt-2">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearVisaPad()">مسح</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="saveVisaPad()">حفظ</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="closeVisaPad()">إغلاق</button>
+        </div>
+    </div>
+</div>
+{% block extra_scripts %}
+<script>
+// رسم التوقيع
+let sigPad = document.getElementById('signaturePadModal');
+let sigCanvas = document.getElementById('signatureCanvas');
+let sigCtx = sigCanvas.getContext('2d');
+let drawing = false;
+function openSignaturePad() { sigPad.style.display = 'flex'; }
+function closeSignaturePad() { sigPad.style.display = 'none'; }
+sigCanvas.onmousedown = e => { drawing = true; sigCtx.beginPath(); sigCtx.moveTo(e.offsetX, e.offsetY); };
+sigCanvas.onmousemove = e => { if (drawing) { sigCtx.lineTo(e.offsetX, e.offsetY); sigCtx.stroke(); } };
+sigCanvas.onmouseup = e => { drawing = false; };
+sigCanvas.onmouseleave = e => { drawing = false; };
+function clearSignaturePad() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
+function isSignatureEmpty() {
+    let blank = document.createElement('canvas');
+    blank.width = sigCanvas.width;
+    blank.height = sigCanvas.height;
+    return sigCanvas.toDataURL() === blank.toDataURL();
+}
+function saveSignaturePad() {
+    if (isSignatureEmpty()) {
+        alert('الرجاء رسم التوقيع قبل الحفظ!');
+        return;
+    }
+    document.getElementById('signature_drawn').value = sigCanvas.toDataURL('image/png');
+    closeSignaturePad();
+}
+// رسم التأشيرة
+let visaPad = document.getElementById('visaPadModal');
+let visaCanvas = document.getElementById('visaCanvas');
+let visaCtx = visaCanvas.getContext('2d');
+let drawingVisa = false;
+function openVisaPad() { visaPad.style.display = 'flex'; }
+function closeVisaPad() { visaPad.style.display = 'none'; }
+visaCanvas.onmousedown = e => { drawingVisa = true; visaCtx.beginPath(); visaCtx.moveTo(e.offsetX, e.offsetY); };
+visaCanvas.onmousemove = e => { if (drawingVisa) { visaCtx.lineTo(e.offsetX, e.offsetY); visaCtx.stroke(); } };
+visaCanvas.onmouseup = e => { drawingVisa = false; };
+visaCanvas.onmouseleave = e => { drawingVisa = false; };
+function clearVisaPad() { visaCtx.clearRect(0, 0, visaCanvas.width, visaCanvas.height); }
+function isVisaEmpty() {
+    let blank = document.createElement('canvas');
+    blank.width = visaCanvas.width;
+    blank.height = visaCanvas.height;
+    return visaCanvas.toDataURL() === blank.toDataURL();
+}
+function saveVisaPad() {
+    if (isVisaEmpty()) {
+        alert('الرجاء رسم التأشيرة قبل الحفظ!');
+        return;
+    }
+    document.getElementById('visa_drawn').value = visaCanvas.toDataURL('image/png');
+    closeVisaPad();
+}
+// منع إرسال النموذج إذا لم يتم رسم التوقيع/التأشيرة عند اختيار الرسم فقط
+const form = document.querySelector('form[method="post"]');
+form.onsubmit = function(e) {
+    if (document.getElementById('signature_drawn').value && isSignatureEmpty()) {
+        alert('الرجاء رسم التوقيع قبل الحفظ!');
+        e.preventDefault();
+        return false;
+    }
+    if (document.getElementById('visa_drawn').value && isVisaEmpty()) {
+        alert('الرجاء رسم التأشيرة قبل الحفظ!');
+        e.preventDefault();
+        return false;
+    }
+};
+</script>
+{% endblock %}
+{% endblock %} 

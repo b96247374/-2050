@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير مخالفة</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff !important; }
+            .card { box-shadow: none !important; border: none !important; }
+        }
+        body { background: #fff; }
+        .header {
+            border-bottom: 2px solid #176c2a;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            text-align: center;
+        }
+        .header img.logo {
+            height: 60px;
+            margin-bottom: 8px;
+        }
+        .report-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #176c2a;
+        }
+        .signature-area {
+            margin-top: 32px;
+            text-align: left;
+        }
+        .signature-area img {
+            margin-left: 18px;
+        }
+        .footer {
+            border-top: 1px solid #ccc;
+            margin-top: 32px;
+            padding-top: 8px;
+            font-size: 0.95rem;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4 mb-4">
+    <div class="header">
+        {% if logo %}
+        <img src="{{ url_for('static', filename=logo) }}" class="logo" alt="شعار الجهة">
+        {% endif %}
+        <div class="fw-bold">{{ ministry_name or 'الجهة الرسمية' }}</div>
+        <div>{{ header_text or '' }}</div>
+    </div>
+    <div class="report-title">تقرير مخالفة رقم #{{ violation[0] }}</div>
+    <table class="table table-bordered mb-4">
+        <tr><th>اسم العسكري المخالف</th><td>{{ violation[1] }}</td></tr>
+        <tr><th>نوع المخالفة</th><td>{{ violation[2] }}</td></tr>
+        <tr><th>يوم الغياب/التأخير</th><td>{{ violation[3] }}</td></tr>
+        <tr><th>التاريخ</th><td>{{ violation[4] }}</td></tr>
+        <tr><th>ملاحظات</th><td>{{ violation[5] }}</td></tr>
+    </table>
+    <div class="signature-area row align-items-center">
+        <div class="col-auto">
+            <div class="fw-bold">اسم القائد:</div>
+            <div>{{ commander_name or '---' }}</div>
+            <div class="fw-bold">الرتبة:</div>
+            <div>{{ commander_rank or '---' }}</div>
+        </div>
+        <div class="col-auto">
+            <div class="fw-bold">التوقيع:</div>
+            {% if signature %}
+            <img src="{{ url_for('static', filename=signature) }}" alt="توقيع القائد" style="max-width:100px;max-height:50px;">
+            {% else %}<span class="text-muted">---</span>{% endif %}
+        </div>
+        <div class="col-auto">
+            <div class="fw-bold">التأشيرة:</div>
+            {% if visa %}
+            <img src="{{ url_for('static', filename=visa) }}" alt="تأشيرة القائد" style="max-width:100px;max-height:50px;">
+            {% else %}<span class="text-muted">---</span>{% endif %}
+        </div>
+    </div>
+    <div class="footer mt-5">
+        تم طباعة التقرير بتاريخ: {{ datetime_now }}
+    </div>
+    <button class="btn btn-primary no-print mt-4" onclick="window.print()">طباعة التقرير</button>
+    <a href="{{ url_for('violations_table') }}" class="btn btn-secondary no-print mt-4">عودة</a>
+</div>
+</body>
+</html> 

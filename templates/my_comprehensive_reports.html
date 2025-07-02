@@ -1,0 +1,57 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}تقاريري اليومية{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4 text-center">تقاريري اليومية المرسلة</h3>
+    {% if reports and reports|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>الموضوع</th>
+                    <th>عدد المخالفات المقبولة</th>
+                    <th>عدد المخالفات المرفوضة</th>
+                    <th>الإجمالي</th>
+                    <th>المرفق</th>
+                    <th>ملاحظات</th>
+                    <th>الحالة</th>
+                    <th>سبب الرفض</th>
+                    <th>تاريخ الإرسال</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>
+                        {% if r[6] %}
+                        <a href="{{ url_for('static', filename=r[6]) }}" target="_blank">عرض</a>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>{{ r[7] }}</td>
+                    <td>
+                        {% if r[8] == 'approved' %}
+                            <span class="badge bg-success">مقبول</span>
+                        {% elif r[8] == 'rejected' %}
+                            <span class="badge bg-danger">مرفوض</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">بانتظار القائد</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if r[9] %}{{ r[9] }}{% else %}-{% endif %}</td>
+                    <td>{{ r[10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">لا توجد تقارير مرسلة بعد.</div>
+    {% endif %}
+</div>
+{% endblock %} 

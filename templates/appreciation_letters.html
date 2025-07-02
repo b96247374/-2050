@@ -1,0 +1,60 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}خطابات الشكر{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+    <h3 class="mb-4 text-center">سجل خطابات الشكر</h3>
+    <form method="post" class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">اسم المستلم <span class="text-danger">*</span></label>
+                <input type="text" name="recipient_name" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">سبب الشكر <span class="text-danger">*</span></label>
+                <input type="text" name="reason" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">التاريخ <span class="text-danger">*</span></label>
+                <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control">
+            </div>
+            <div class="col-md-12 mt-3 text-center">
+                <button type="submit" class="btn btn-success px-5">إضافة خطاب شكر</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>اسم المستلم</th>
+                    <th>سبب الشكر</th>
+                    <th>التاريخ</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in letters %}
+                <tr>
+                    <td>{{ l[0] }}</td>
+                    <td>{{ l[1] }}</td>
+                    <td>{{ l[2] }}</td>
+                    <td>{{ l[3] }}</td>
+                    <td>{{ l[4] }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_appreciation_letter', letter_id=l[0]) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف الخطاب؟');">حذف</a>
+                        <a href="{{ url_for('appreciation_letter_print', letter_id=l[0]) }}" class="btn btn-outline-primary btn-sm" target="_blank">طباعة</a>
+                        <a href="{{ url_for('appreciation_letter_view', letter_id=l[0]) }}" class="btn btn-info btn-sm" target="_blank">عرض</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

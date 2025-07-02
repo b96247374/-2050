@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}لوحة التحكم{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f4f6fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 230px;
+            background: linear-gradient(135deg, #176c2a 0%, #218838 100%);
+            color: #fff;
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.07);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2002;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 28px 0 12px 0;
+        }
+        .sidebar .logo img {
+            height: 54px;
+            max-width: 54px;
+            border-radius: 12px;
+            background: #fff;
+            padding: 4px;
+            margin-bottom: 8px;
+        }
+        .sidebar .ministry {
+            font-weight: bold;
+            font-size: 1.08rem;
+            margin-bottom: 2px;
+        }
+        .sidebar .header-text {
+            font-size: 0.97rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        .sidebar .nav {
+            flex: 1;
+        }
+        .sidebar .nav-link {
+            color: #eafbe6;
+            font-weight: 500;
+            padding: 12px 22px 12px 12px;
+            border-radius: 8px 0 0 8px;
+            margin: 3px 0;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 1.01rem;
+        }
+        .sidebar .nav-link i {
+            margin-left: 10px;
+            font-size: 1.1rem;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #fff;
+            color: #176c2a;
+            font-weight: bold;
+        }
+        .sidebar .logout {
+            margin: 18px 0 10px 0;
+            padding: 10px 22px;
+            color: #fff;
+            border-top: 1px solid #eafbe6;
+            font-size: 1rem;
+        }
+        .sidebar .logout a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+            padding: 32px 24px 24px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        body.hide-sidebar-mobile-user .sidebar,
+        body.hide-sidebar-mobile-user .sidebar-overlay,
+        body.hide-sidebar-mobile-user .hamburger,
+        body.hide-sidebar-mobile-user .logout-top {
+            display: none !important;
+        }
+        body.hide-sidebar-mobile-user .sidebar-overlay {
+            display: none !important;
+            pointer-events: none !important;
+            opacity: 0 !important;
+            z-index: -1 !important;
+        }
+        @media (max-width: 767.98px) {
+            body.hide-sidebar-mobile-user .sidebar,
+            body.hide-sidebar-mobile-user .sidebar-overlay,
+            body.hide-sidebar-mobile-user .hamburger,
+            body.hide-sidebar-mobile-user .logout-top {
+                display: none !important;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 80vw;
+                max-width: 320px;
+                height: 100vh;
+                z-index: 3000;
+                transform: translateX(100vw);
+                transition: transform 0.3s;
+                box-shadow: 0 0 16px rgba(0,0,0,0.18);
+                background: linear-gradient(135deg, #176c2a 0%, #218838 100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar .close-arrow {
+                display: block;
+                position: absolute;
+                left: 12px;
+                top: 12px;
+                background: none;
+                border: none;
+                color: #176c2a;
+                font-size: 1.7rem;
+                z-index: 4000;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                background: rgba(0,0,0,0.25);
+                z-index: 2999;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .hamburger {
+                display: block;
+                position: fixed;
+                top: 18px;
+                right: 18px;
+                z-index: 4001;
+                background: #176c2a;
+                color: #fff;
+                border: none;
+                border-radius: 6px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.7rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            .logout-top {
+                display: block;
+                position: fixed;
+                top: 18px;
+                left: 18px;
+                z-index: 4001;
+                background: #dc3545;
+                color: #fff;
+                border: none;
+                border-radius: 6px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.5rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                text-align: center;
+                line-height: 44px;
+                transition: background 0.2s;
+            }
+            .logout-top:hover {
+                background: #b52a37;
+            }
+        }
+        @media (min-width: 768px) {
+            .sidebar .close-arrow, .hamburger, .sidebar-overlay {
+                display: none !important;
+            }
+            .sidebar {
+                transform: none !important;
+                position: relative !important;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.07);
+            }
+            .logout-top {
+                display: none !important;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body{% if user.role == 'user' %} class="hide-sidebar-mobile-user"{% endif %}>
+    <div class="dashboard-wrapper">
+        <button class="hamburger" id="openSidebarBtn" aria-label="فتح القائمة"><i class="fas fa-bars"></i></button>
+        <a href="{{ url_for('logout') }}" class="logout-top" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></a>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <button class="close-arrow" id="closeSidebarBtn" aria-label="إغلاق القائمة"><i class="fas fa-arrow-right"></i></button>
+            <div class="logo">
+                {% if logo %}
+                    <img src="{{ url_for('static', filename=logo) }}" alt="شعار النظام" onerror="this.style.display='none';">
+                {% endif %}
+                <div class="ministry">{{ ministry_name or 'لوحة التحكم' }}</div>
+                <div class="header-text">{{ header_text or '' }}</div>
+            </div>
+            <nav class="nav flex-column mt-3">
+                {% if user.role == 'commander' or user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'comprehensive_reports' %}active{% endif %}" href="{{ url_for('comprehensive_reports') }}">
+                    <i class="fas fa-list-alt"></i><span>عرض التقارير اليومية</span>
+                </a>
+                {% endif %}
+                {% if user.role == 'admin' or user.can_manage_users %}
+                <a class="nav-link {% if request.endpoint == 'users' %}active{% endif %}" href="{{ url_for('users') }}">
+                    <i class="fas fa-users"></i><span>إدارة المستخدمين</span>
+                </a>
+                {% endif %}
+                {% if user.can_create_report or user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'create_report' %}active{% endif %}" href="{{ url_for('create_report') }}">
+                    <i class="fas fa-file-medical"></i><span>إنشاء تقرير</span>
+                </a>
+                {% endif %}
+                <a class="nav-link {% if request.endpoint == 'my_comprehensive_reports' %}active{% endif %}" href="{{ url_for('my_comprehensive_reports') }}">
+                    <i class="fas fa-file-alt"></i><span>تقاريري اليومية</span>
+                </a>
+                {% if user.role == 'commander' or user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'manage_signature_visa' %}active{% endif %}" href="{{ url_for('manage_signature_visa') }}">
+                    <i class="fas fa-pen-nib"></i><span>إدارة التوقيع والتأشيرة</span>
+                </a>
+                {% endif %}
+                {% if user.role == 'commander' or user.role == 'admin' %}
+                <a class="nav-link {% if request.endpoint == 'handover_table' %}active{% endif %}" href="{{ url_for('handover_table') }}">
+                    <i class="fas fa-table"></i><span>جدول الاستلامات</span>
+                </a>
+                <a class="nav-link {% if request.endpoint == 'leaves_table' %}active{% endif %}" href="{{ url_for('leaves_table') }}">
+                    <i class="fas fa-calendar-alt"></i><span>الإجازات الشاملة</span>
+                </a>
+                <a class="nav-link {% if request.endpoint == 'violations_table' %}active{% endif %}" href="{{ url_for('violations_table') }}">
+                    <i class="fas fa-user-times"></i><span>الغيابات/التأخير/عدم تنفيذ الأوامر</span>
+                </a>
+                <a class="nav-link {% if request.endpoint == 'appreciation_letters' %}active{% endif %}" href="{{ url_for('appreciation_letters') }}">
+                    <i class="fas fa-award"></i><span>خطابات الشكر</span>
+                </a>
+                <a class="nav-link {% if request.endpoint == 'permission_requests' %}active{% endif %}" href="{{ url_for('permission_requests') }}">
+                    <i class="fas fa-user-check"></i><span>إذن/استئذان</span>
+                </a>
+                {% endif %}
+            </nav>
+            <div class="logout mt-4">
+                <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> <span>تسجيل الخروج</span></a>
+            </div>
+        </div>
+        <div class="main-area">
+            <div class="main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% block extra_scripts %}
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        var sidebar = document.getElementById('sidebar');
+        var closeBtn = document.getElementById('closeSidebarBtn');
+        var openBtn = document.getElementById('openSidebarBtn');
+        var overlay = document.getElementById('sidebarOverlay');
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+        openBtn.addEventListener('click', function() {
+            openSidebar();
+            overlay.style.display = 'block';
+        });
+        closeBtn.addEventListener('click', function() {
+            closeSidebar();
+            overlay.style.display = 'none';
+        });
+        overlay.addEventListener('click', function() {
+            closeSidebar();
+            overlay.style.display = 'none';
+        });
+        document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                closeSidebar();
+                overlay.style.display = 'none';
+            });
+        });
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 767) {
+                closeBtn.style.display = 'block';
+                openBtn.style.display = 'block';
+            } else {
+                closeBtn.style.display = 'none';
+                openBtn.style.display = 'none';
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
+        });
+        var currentPath = window.location.pathname;
+        var createReportPath = '{{ url_for('create_daily_report') }}';
+        var shouldRedirect = false;
+        if (window.innerWidth <= 767) {
+            if (
+                currentPath === '/' ||
+                currentPath === '' ||
+                currentPath.includes('dashboard')
+            ) {
+                if (currentPath !== createReportPath) {
+                    shouldRedirect = true;
+                }
+            }
+        }
+        console.log('MOBILE REDIRECT CHECK', {currentPath, createReportPath, shouldRedirect});
+        if (shouldRedirect) {
+            window.location.href = createReportPath;
+        }
+    });
+    </script>
+    {% if user.role == 'user' %}
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        var overlay = document.getElementById('sidebarOverlay');
+        if (overlay) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+    </script>
+    {% endif %}
+    <script>
+    document.querySelectorAll('*').forEach(function(el) {
+      try {
+        var z = getComputedStyle(el).zIndex;
+        var pos = getComputedStyle(el).position;
+        if (z && !isNaN(z) && Number(z) > 1000 && pos === 'fixed') {
+          el.style.pointerEvents = 'none';
+          el.style.display = 'none';
+        }
+      } catch(e) {}
+    });
+    </script>
+    {% endblock %}
+</body>
+</html> 

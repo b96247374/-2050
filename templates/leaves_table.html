@@ -1,0 +1,82 @@
+{% extends 'base_dashboard.html' %}
+{% block title %}الإجازات الشاملة{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width: 950px;">
+    <h3 class="mb-4 text-center">سجل الإجازات الشاملة للضباط والأفراد</h3>
+    <form method="post" class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">اسم العسكري <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الرتبة <span class="text-danger">*</span></label>
+                <input type="text" name="rank" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">نوع الإجازة <span class="text-danger">*</span></label>
+                <select name="leave_type" class="form-select" required>
+                    <option value="">اختر</option>
+                    <option value="اعتيادية">اعتيادية</option>
+                    <option value="اضطرارية">اضطرارية</option>
+                    <option value="مرضية">مرضية</option>
+                    <option value="ميدانية">ميدانية</option>
+                    <option value="دراسية">دراسية</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">تاريخ البداية <span class="text-danger">*</span></label>
+                <input type="date" name="start_date" class="form-control" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">تاريخ النهاية <span class="text-danger">*</span></label>
+                <input type="date" name="end_date" class="form-control" required>
+            </div>
+            <div class="col-md-12 mt-2">
+                <label class="form-label">ملاحظات</label>
+                <input type="text" name="notes" class="form-control">
+            </div>
+            <div class="col-md-12 mt-3 text-center">
+                <button type="submit" class="btn btn-success px-5">إضافة إجازة</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>اسم العسكري</th>
+                    <th>الرتبة</th>
+                    <th>نوع الإجازة</th>
+                    <th>تاريخ البداية</th>
+                    <th>تاريخ النهاية</th>
+                    <th>ملاحظات</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in leaves %}
+                <tr>
+                    <td>{{ l[0] }}</td>
+                    <td>{{ l[1] }}</td>
+                    <td>{{ l[2] }}</td>
+                    <td>{{ l[3] }}</td>
+                    <td>{{ l[4] }}</td>
+                    <td>{{ l[5] }}</td>
+                    <td>{{ l[6] or '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_leave', leave_id=l[0]) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف الإجازة؟');">حذف</a>
+                        <a href="{{ url_for('leave_print', leave_id=l[0]) }}" class="btn btn-outline-primary btn-sm" target="_blank">طباعة</a>
+                        <a href="{{ url_for('leave_view', leave_id=l[0]) }}" class="btn btn-info btn-sm" target="_blank">عرض</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="text-center text-muted">لا توجد إجازات مسجلة بعد.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 
