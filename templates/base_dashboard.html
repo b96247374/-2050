@@ -257,6 +257,9 @@
                 <a class="nav-link {% if request.endpoint == 'permission_requests' %}active{% endif %}" href="{{ url_for('permission_requests') }}">
                     <i class="fas fa-user-check"></i><span>إذن/استئذان</span>
                 </a>
+                <a class="nav-link {% if request.endpoint in ['administrative_decisions', 'create_decision', 'decision_view', 'decision_print'] %}active{% endif %}" href="{{ url_for('administrative_decisions') }}">
+                    <i class="fas fa-gavel"></i><span>القرارات الإدارية</span>
+                </a>
                 {% endif %}
             </nav>
             <div class="logout mt-4">
