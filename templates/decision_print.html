@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة القرار - {{ decision[1] }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 14pt;
+            line-height: 1.6;
+            color: #000;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            max-height: 120px;
+            margin-bottom: 15px;
+        }
+        
+        .ministry-name {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .header-text {
+            font-size: 16pt;
+            margin-bottom: 15px;
+        }
+        
+        .decision-title {
+            font-size: 20pt;
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            padding: 15px;
+            border: 2px solid #000;
+        }
+        
+        .decision-info {
+            margin-bottom: 30px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .info-table td {
+            padding: 8px;
+            border: 1px solid #000;
+            vertical-align: top;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 25%;
+            background-color: #f5f5f5;
+        }
+        
+        .decision-content {
+            text-align: justify;
+            padding: 20px;
+            border: 1px solid #000;
+            margin: 20px 0;
+            background-color: #fafafa;
+            line-height: 2;
+        }
+        
+        .signature-section {
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+        
+        .signature-box {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .signature-img {
+            max-height: 100px;
+            margin: 10px 0;
+        }
+        
+        .commander-info {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .status-approved {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-draft {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        
+        .status-rejected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .print-info {
+            position: fixed;
+            bottom: 1cm;
+            left: 0;
+            right: 0;
+            font-size: 10pt;
+            text-align: center;
+            color: #666;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
+        @media screen {
+            body {
+                max-width: 21cm;
+                margin: 0 auto;
+                padding: 2cm;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            
+            .no-print {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- أزرار الطباعة والرجوع -->
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-primary me-2">
+            <i class="fas fa-print"></i> طباعة
+        </button>
+        <button onclick="window.close()" class="btn btn-secondary">
+            <i class="fas fa-times"></i> إغلاق
+        </button>
+    </div>
+
+    <!-- رأسية الوثيقة -->
+    <div class="header">
+        {% if logo %}
+        <img src="{{ url_for('static', filename=logo) }}" alt="الشعار" class="logo">
+        {% endif %}
+        <div class="ministry-name">{{ ministry_name or 'وزارة الداخلية' }}</div>
+        <div class="header-text">{{ header_text or 'المملكة العربية السعودية' }}</div>
+    </div>
+
+    <!-- عنوان القرار -->
+    <div class="decision-title">
+        قرار إداري رقم: {{ decision[1] }}
+    </div>
+
+    <!-- معلومات القرار -->
+    <div class="decision-info">
+        <table class="info-table">
+            <tr>
+                <td class="info-label">عنوان القرار:</td>
+                <td>{{ decision[2] }}</td>
+                <td class="info-label">نوع القرار:</td>
+                <td>{{ decision[3] }}</td>
+            </tr>
+            <tr>
+                <td class="info-label">تاريخ القرار:</td>
+                <td>{{ decision[4] }}</td>
+                <td class="info-label">الحالة:</td>
+                <td>
+                    {% if decision[8] == 'draft' %}
+                        <span class="status-draft">مسودة</span>
+                    {% elif decision[8] == 'approved' %}
+                        <span class="status-approved">معتمد</span>
+                    {% elif decision[8] == 'rejected' %}
+                        <span class="status-rejected">مرفوض</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td class="info-label">صادر من:</td>
+                <td>{{ decision[6] }}</td>
+                <td class="info-label">معتمد من:</td>
+                <td>{{ decision[7] or 'لم يعتمد بعد' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- نص القرار -->
+    <div>
+        <h3 style="text-align: center; margin-bottom: 20px;">نص القرار</h3>
+        <div class="decision-content">{{ decision[5] }}</div>
+    </div>
+
+    <!-- الملاحظات -->
+    {% if decision[9] %}
+    <div style="margin-top: 30px;">
+        <h4>ملاحظات:</h4>
+        <div style="padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9;">
+            {{ decision[9] }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- قسم التوقيع والاعتماد -->
+    {% if decision[8] == 'approved' %}
+    <div class="signature-section">
+        <table style="width: 100%; margin-top: 50px;">
+            <tr>
+                <td style="width: 50%; text-align: center; vertical-align: top;">
+                    {% if signature %}
+                    <div>
+                        <p><strong>التوقيع:</strong></p>
+                        <img src="{{ url_for('static', filename=signature) }}" 
+                             alt="التوقيع" class="signature-img">
+                    </div>
+                    {% endif %}
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: top;">
+                    {% if visa %}
+                    <div>
+                        <p><strong>الختم الرسمي:</strong></p>
+                        <img src="{{ url_for('static', filename=visa) }}" 
+                             alt="الختم" class="signature-img">
+                    </div>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        
+        <div class="signature-box">
+            <div class="commander-info">
+                <p>{{ commander_name or 'القائد' }}</p>
+                <p>{{ commander_rank or 'الرتبة' }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- معلومات الطباعة -->
+    <div class="print-info">
+        تاريخ الطباعة: {{ datetime_now }} | رقم القرار: {{ decision[1] }}
+        {% if decision[10] %}
+        | تاريخ الإنشاء: {{ decision[10][:10] }}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // طباعة تلقائية عند فتح الصفحة
+        window.addEventListener('load', function() {
+            // تأخير قصير للتأكد من تحميل الصور
+            setTimeout(function() {
+                if (window.location.search.includes('auto_print=1')) {
+                    window.print();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

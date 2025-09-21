@@ -285,6 +285,26 @@ def init_leaves_table_db():
     conn.commit()
     conn.close()
 
+def init_administrative_decisions_db():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS administrative_decisions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        decision_number TEXT UNIQUE,
+        decision_title TEXT NOT NULL,
+        decision_type TEXT NOT NULL,
+        decision_date TEXT NOT NULL,
+        decision_content TEXT NOT NULL,
+        issued_by TEXT NOT NULL,
+        approved_by TEXT,
+        status TEXT DEFAULT 'draft',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        notes TEXT
+    )''')
+    conn.commit()
+    conn.close()
+
 init_daily_reports_db()
 init_users_db()
 init_settings_db()
@@ -293,6 +313,7 @@ init_violations_table_db()
 init_appreciation_letters_db()
 init_permission_requests_db()
 init_leaves_table_db()
+init_administrative_decisions_db()
 
 # تحديث commander_info من قاعدة البيانات
 commander_info['signature'] = get_setting('signature')
@@ -1559,6 +1580,215 @@ def leave_print(leave_id):
     from datetime import datetime
     datetime_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return render_template('leave_print.html', user=user, leave=leave, signature=signature, visa=visa, commander_name=commander_name, commander_rank=commander_rank, logo=logo, ministry_name=ministry_name, header_text=header_text, datetime_now=datetime_now)
+
+# نظام القرارات الإدارية
+@app.route('/administrative_decisions')
+def administrative_decisions():
+    user = get_current_user()
+    if not user or (user['role'] not in ['commander', 'admin']):
+        return redirect(url_for('login'))
+    
+    status_filter = request.args.get('status', 'all')
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    
+    if status_filter and status_filter != 'all':
+        c.execute('''SELECT id, decision_number, decision_title, decision_type, decision_date, 
+                     issued_by, approved_by, status, created_at FROM administrative_decisions 
+                     WHERE status=? ORDER BY id DESC''', (status_filter,))
+    else:
+        c.execute('''SELECT id, decision_number, decision_title, decision_type, decision_date, 
+                     issued_by, approved_by, status, created_at FROM administrative_decisions 
+                     ORDER BY id DESC''')
+    
+    decisions = c.fetchall()
+    conn.close()
+    
+    return render_template('administrative_decisions.html', 
+                         user=user, 
+                         decisions=decisions,
+                         status_filter=status_filter,
+                         commander_name=get_setting('commander_name'),
+                         commander_rank=get_setting('commander_rank'),
+                         logo=get_setting('logo'),
+                         ministry_name=get_setting('ministry_name'),
+                         header_text=get_setting('header_text'))
+
+@app.route('/create_decision', methods=['GET', 'POST'])
+def create_decision():
+    user = get_current_user()
+    if not user or (user['role'] not in ['commander', 'admin']):
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        decision_title = request.form.get('decision_title', '').strip()
+        decision_type = request.form.get('decision_type', '').strip()
+        decision_date = request.form.get('decision_date', '').strip()
+        decision_content = request.form.get('decision_content', '').strip()
+        notes = request.form.get('notes', '').strip()
+        
+        if not all([decision_title, decision_type, decision_date, decision_content]):
+            return render_template('create_decision.html', user=user, 
+                                 error="يرجى ملء جميع الحقول المطلوبة",
+                                 commander_name=get_setting('commander_name'),
+                                 commander_rank=get_setting('commander_rank'),
+                                 logo=get_setting('logo'),
+                                 ministry_name=get_setting('ministry_name'),
+                                 header_text=get_setting('header_text'))
+        
+        # توليد رقم القرار
+        conn = sqlite3.connect('database.db')
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM administrative_decisions WHERE decision_date LIKE ?', (decision_date[:4] + '%',))
+        count = c.fetchone()[0] + 1
+        decision_number = f"{count}/{decision_date[:4]}"
+        
+        try:
+            c.execute('''INSERT INTO administrative_decisions 
+                        (decision_number, decision_title, decision_type, decision_date, 
+                         decision_content, issued_by, status, notes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                     (decision_number, decision_title, decision_type, decision_date, 
+                      decision_content, user['username'], 'draft', notes))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('administrative_decisions'))
+        except sqlite3.IntegrityError:
+            conn.close()
+            return render_template('create_decision.html', user=user, 
+                                 error="حدث خطأ في إنشاء القرار",
+                                 commander_name=get_setting('commander_name'),
+                                 commander_rank=get_setting('commander_rank'),
+                                 logo=get_setting('logo'),
+                                 ministry_name=get_setting('ministry_name'),
+                                 header_text=get_setting('header_text'))
+    
+    return render_template('create_decision.html', user=user,
+                         commander_name=get_setting('commander_name'),
+                         commander_rank=get_setting('commander_rank'),
+                         logo=get_setting('logo'),
+                         ministry_name=get_setting('ministry_name'),
+                         header_text=get_setting('header_text'))
+
+@app.route('/decision_view/<int:decision_id>')
+def decision_view(decision_id):
+    user = get_current_user()
+    if not user or (user['role'] not in ['commander', 'admin']):
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''SELECT id, decision_number, decision_title, decision_type, decision_date,
+                 decision_content, issued_by, approved_by, status, notes, created_at
+                 FROM administrative_decisions WHERE id=?''', (decision_id,))
+    decision = c.fetchone()
+    conn.close()
+    
+    if not decision:
+        return 'القرار غير موجود', 404
+    
+    signature = get_setting('signature')
+    visa = get_setting('visa')
+    commander_name = get_setting('commander_name')
+    commander_rank = get_setting('commander_rank')
+    logo = get_setting('logo')
+    ministry_name = get_setting('ministry_name')
+    header_text = get_setting('header_text')
+    datetime_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    return render_template('decision_view.html', 
+                         user=user, 
+                         decision=decision,
+                         signature=signature,
+                         visa=visa,
+                         commander_name=commander_name,
+                         commander_rank=commander_rank,
+                         logo=logo,
+                         ministry_name=ministry_name,
+                         header_text=header_text,
+                         datetime_now=datetime_now)
+
+@app.route('/decision_print/<int:decision_id>')
+def decision_print(decision_id):
+    user = get_current_user()
+    if not user or (user['role'] not in ['commander', 'admin']):
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('''SELECT id, decision_number, decision_title, decision_type, decision_date,
+                 decision_content, issued_by, approved_by, status, notes, created_at
+                 FROM administrative_decisions WHERE id=?''', (decision_id,))
+    decision = c.fetchone()
+    conn.close()
+    
+    if not decision:
+        return 'القرار غير موجود', 404
+    
+    signature = get_setting('signature')
+    visa = get_setting('visa')
+    commander_name = get_setting('commander_name')
+    commander_rank = get_setting('commander_rank')
+    logo = get_setting('logo')
+    ministry_name = get_setting('ministry_name')
+    header_text = get_setting('header_text')
+    datetime_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    return render_template('decision_print.html', 
+                         user=user, 
+                         decision=decision,
+                         signature=signature,
+                         visa=visa,
+                         commander_name=commander_name,
+                         commander_rank=commander_rank,
+                         logo=logo,
+                         ministry_name=ministry_name,
+                         header_text=header_text,
+                         datetime_now=datetime_now)
+
+@app.route('/approve_decision/<int:decision_id>')
+def approve_decision(decision_id):
+    user = get_current_user()
+    if not user or user['role'] != 'admin':
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE administrative_decisions SET status=?, approved_by=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', 
+              ('approved', user['username'], decision_id))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('administrative_decisions'))
+
+@app.route('/reject_decision/<int:decision_id>')
+def reject_decision(decision_id):
+    user = get_current_user()
+    if not user or user['role'] != 'admin':
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE administrative_decisions SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', 
+              ('rejected', decision_id))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('administrative_decisions'))
+
+@app.route('/delete_decision/<int:decision_id>')
+def delete_decision(decision_id):
+    user = get_current_user()
+    if not user or user['role'] != 'admin':
+        return redirect(url_for('login'))
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM administrative_decisions WHERE id=?', (decision_id,))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('administrative_decisions'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=11000, debug=True) 
